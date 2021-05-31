@@ -72,7 +72,9 @@ gen_book_of_life <- function(
   ...
 ) {
   # Define the structural equations.
-  f_S <- identity
+  f_S <- function(u_L) {
+    return(factor(if_else(u_L == 1, "b", "w"), levels = c("w", "b")))
+  }
 
   f_D <- identity
 
@@ -87,22 +89,26 @@ gen_book_of_life <- function(
   }
   
   f_M <- function(d, a, u_M) {
-    val <- alpha_0 + a * alpha_A + d * alpha_black
+    val <- alpha_0 + a * alpha_A + (d == "b") * alpha_black
     return(u_M <= val)
   }
 
   f_Z <- function(d, m) {
-    if_else(m, d, na_lgl)
+    if_else(m, d, na_int)
   }
 
   f_R <- function(d, a, m, u_R) {
-    val <- if_else(m, lambda_0 + a * lambda_A + d * lambda_black, na_dbl)
+    val <- if_else(
+      m,
+      lambda_0 + a * lambda_A + (d == "b") * lambda_black,
+      na_dbl
+    )
     return(u_R <= val)
   }
   
   f_Y <- function(z, m, r, x, u_Y) {
-    val <- beta_0 + x * beta_X + r * beta_R + z * beta_black
-    return(as.logical(m * (u_Y <= val)))
+    val <- beta_0 + x * beta_X + r * beta_R + (z == "b") * beta_black
+    return(replace_na(u_Y <= val, FALSE))
   }
   
   # Generate the book of life.
@@ -126,10 +132,10 @@ gen_book_of_life <- function(
       Y = f_Y(Z, M, R, X, U_Y),
 
       # Generate the potential outcomes.
-      M_w = f_M(0, A, U_M),
-      M_b = f_M(1, A, U_M),
-      Y_w_1 = f_Y(0, rep(TRUE, pop_size), R, X, U_Y),
-      Y_b_1 = f_Y(1, rep(TRUE, pop_size), R, X, U_Y)
+      M_w = f_M("w", A, U_M),
+      M_b = f_M("b", A, U_M),
+      Y_w_1 = f_Y("w", rep(TRUE, pop_size), R, X, U_Y),
+      Y_b_1 = f_Y("b", rep(TRUE, pop_size), R, X, U_Y)
   )
 }
 ```
@@ -144,14 +150,14 @@ linear models.
 ```{r convenience_functions}
 extract_sdm <- function(book_of_life) {
   confounded <- book_of_life %>%
-    filter(M == 1) %>%
+    filter(M) %>%
     group_by(Z, X) %>%
     summarize(c_zx = mean(Y), S_zx = n(), .groups = 'drop') %>%
     group_by(X) %>%
     summarize(
       n_x = sum(S_zx),
       se_x = sum(c_zx * (1 - c_zx) / S_zx),
-      diff_in_means = sum(Z * c_zx - (1 - Z) * c_zx),
+      diff_in_means = sum((Z == "b") * c_zx - (Z == "w") * c_zx),
       .groups='drop'
     ) %>%
     summarize(
@@ -160,14 +166,14 @@ extract_sdm <- function(book_of_life) {
     )
   
   unconfounded <- book_of_life %>%
-    filter(M == 1) %>%
+    filter(M) %>%
     group_by(Z, X, R) %>%
     summarize(c_zxr = mean(Y), S_zxr = n(), .groups='drop') %>%
     group_by(X, R) %>%
     summarize(
       n_xr = sum(S_zxr),
       se_xr = sum(c_zxr * (1 - c_zxr) / S_zxr),
-      diff_in_means = sum(Z * c_zxr - (1 - Z) * c_zxr),
+      diff_in_means = sum((Z == "b") * c_zxr - (Z == "w") * c_zxr),
       .groups='drop'
     ) %>%
     summarize(
@@ -181,17 +187,17 @@ extract_sdm <- function(book_of_life) {
 
 extract_lpm <- function(book_of_life) {
   confounded <- book_of_life %>%
-    filter(M == 1) %>%
+    filter(M) %>%
     lm(formula = Y ~ X + Z, data = .) %>%
     tidy() %>%
-    filter(term == "ZTRUE") %>%
+    filter(term == "Zb") %>%
     select(estimate = estimate, se = std.error)
   
   unconfounded <- book_of_life %>%
-    filter(M == 1) %>%
+    filter(M) %>%
     lm(formula = Y ~ X + R + Z, data = .) %>%
     tidy() %>%
-    filter(term == "ZTRUE") %>%
+    filter(term == "Zb") %>%
     select(estimate = estimate, se = std.error)
   
   rbind(confounded, unconfounded) %>%
