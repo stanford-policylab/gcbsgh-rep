@@ -8,6 +8,7 @@ output:
 ---
 
 ```{r setup}
+library(rlang)
 library(tidymodels)
 library(tidyverse)
 library(furrr)
@@ -53,7 +54,7 @@ process.
 ```{r book_of_life}
 gen_book_of_life <- function(
   pop_size,
-  mu_T,
+  mu_S,
   mu_X,
   delta,
   mu_A,
@@ -71,39 +72,43 @@ gen_book_of_life <- function(
   ...
 ) {
   # Define the structural equations.
-  f_T <- identity
-  f_D <- identity
-  f_Z <- identity
+  f_S <- identity
 
-  f_A <- function(t, u_A){
-    val <- mu_A + t*gamma_
-    return(as.integer(u_A <= val))
+  f_D <- identity
+
+  f_A <- function(u_A, u_L) {
+    val <- mu_A + u_L * gamma_
+    return(u_A <= val)
   }
-  
-  f_X <- function(t, u_X){
-    val <- mu_X + t*delta
-    return(as.integer(u_X <= val))
+
+  f_X <- function(u_X, u_L){
+    val <- mu_X + u_L * delta
+    return(u_X <= val)
   }
   
   f_M <- function(d, a, u_M) {
-    val <- alpha_0 + a*alpha_A + d*alpha_black
-    return(as.integer(u_M <= val))
+    val <- alpha_0 + a * alpha_A + d * alpha_black
+    return(u_M <= val)
   }
-  
-  f_R <- function(d, a, u_R) {
-    val <- lambda_0 + a*lambda_A + d*lambda_black
+
+  f_Z <- function(d, m) {
+    if_else(m, d, na_lgl)
+  }
+
+  f_R <- function(d, a, m, u_R) {
+    val <- if_else(m, lambda_0 + a * lambda_A + d * lambda_black, na_dbl)
     return(u_R <= val)
   }
   
   f_Y <- function(z, m, r, x, u_Y) {
-    val <- beta_0 + x*beta_X + r*beta_R + z*beta_black
-    return(m * (u_Y <= val))
+    val <- if_else(m, beta_0 + x * beta_X + r * beta_R + z * beta_black, na_dbl)
+    return(u_Y <= val)
   }
   
   # Generate the book of life.
   book_of_life <- tibble(
       # Generate the exogenous variables.
-      U_T = rbinom(pop_size, 1, mu_T),
+      U_L = as.logical(rbinom(pop_size, 1, mu_S)),
       U_A = runif(pop_size),
       U_X = runif(pop_size),
       U_R = runif(pop_size),
@@ -111,20 +116,20 @@ gen_book_of_life <- function(
       U_Y = runif(pop_size),
       
       # Generate the endogenous variables.
-      TT = f_T(U_T),
-      D = f_D(TT),
-      Z = f_Z(D),
-      A = f_A(TT, U_A),
-      X = f_X(TT, U_X),
+      S = f_S(U_L),
+      D = f_D(S),
+      A = f_A(U_A, U_L),
+      X = f_X(U_X, U_L),
       M = f_M(D, A, U_M),
-      R = f_R(D, A, U_R),
+      Z = f_Z(D, M),
+      R = f_R(D, A, M, U_R),
       Y = f_Y(Z, M, R, X, U_Y),
 
       # Generate the potential outcomes.
       M_w = f_M(0, A, U_M),
       M_b = f_M(1, A, U_M),
-      Y_w_1 = f_Y(0, 1, R, X, U_Y),
-      Y_b_1 = f_Y(1, 1, R, X, U_Y)
+      Y_w_1 = f_Y(0, rep(TRUE, pop_size), R, X, U_Y),
+      Y_b_1 = f_Y(1, rep(TRUE, pop_size), R, X, U_Y)
   )
 }
 ```
@@ -179,14 +184,14 @@ extract_lpm <- function(book_of_life) {
     filter(M == 1) %>%
     lm(formula = Y ~ X + Z, data = .) %>%
     tidy() %>%
-    filter(term == "Z") %>%
+    filter(term == "ZTRUE") %>%
     select(estimate = estimate, se = std.error)
   
   unconfounded <- book_of_life %>%
     filter(M == 1) %>%
     lm(formula = Y ~ X + R + Z, data = .) %>%
     tidy() %>%
-    filter(term == "Z") %>%
+    filter(term == "ZTRUE") %>%
     select(estimate = estimate, se = std.error)
   
   rbind(confounded, unconfounded) %>%
@@ -205,7 +210,7 @@ We'll generate estimates using the following grid of parameters.
 ```{r parameters}
 params <- expand_grid(
   pop_size = 1e5,
-  mu_T = 0.3,
+  mu_S = 0.3,
   mu_X = 0.3,
   delta = 0.1,
   mu_A = 0.3,
