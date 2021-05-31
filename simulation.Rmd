@@ -101,8 +101,8 @@ gen_book_of_life <- function(
   }
   
   f_Y <- function(z, m, r, x, u_Y) {
-    val <- if_else(m, beta_0 + x * beta_X + r * beta_R + z * beta_black, na_dbl)
-    return(u_Y <= val)
+    val <- beta_0 + x * beta_X + r * beta_R + z * beta_black
+    return(as.logical(m * (u_Y <= val)))
   }
   
   # Generate the book of life.
