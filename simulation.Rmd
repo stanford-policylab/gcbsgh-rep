@@ -54,7 +54,7 @@ process.
 ```{r book_of_life}
 gen_book_of_life <- function(
   pop_size,
-  mu_S,
+  mu_L,
   mu_X,
   delta,
   mu_A,
@@ -114,7 +114,7 @@ gen_book_of_life <- function(
   # Generate the book of life.
   book_of_life <- tibble(
       # Generate the exogenous variables.
-      U_L = as.logical(rbinom(pop_size, 1, mu_S)),
+      U_L = as.logical(rbinom(pop_size, 1, mu_L)),
       U_A = runif(pop_size),
       U_X = runif(pop_size),
       U_R = runif(pop_size),
@@ -143,7 +143,7 @@ gen_book_of_life <- function(
 Next, we define two convenience function which, given the book of life, produce
 the stratified difference-in-means and linear regression estimates, both when
 the covariate R is and is not observed. These functions also return the standard
-error, computed according to Eq. (8) in the case of the stratified
+error, computed according to Eq. (9) in the case of the stratified
 difference-in-means estimator and according to the standard calculation for
 linear models.
 
@@ -216,7 +216,7 @@ We'll generate estimates using the following grid of parameters.
 ```{r parameters}
 params <- expand_grid(
   pop_size = 1e5,
-  mu_S = 0.3,
+  mu_L = 0.3,
   mu_X = 0.3,
   delta = 0.1,
   mu_A = 0.3,
