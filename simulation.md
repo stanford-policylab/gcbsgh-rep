@@ -4,25 +4,48 @@ Gaebler et al.
 Tuesday, October 11, 2020
 
 ``` r
+library(rlang)
 library(tidymodels)
 ```
 
-    ## ── Attaching packages ────────────────────────────────────── tidymodels 0.1.1 ──
+    ## Registered S3 methods overwritten by 'tibble':
+    ##   method     from  
+    ##   format.tbl pillar
+    ##   print.tbl  pillar
 
-    ## ✔ broom     0.7.0      ✔ recipes   0.1.13
-    ## ✔ dials     0.0.8      ✔ rsample   0.0.7 
-    ## ✔ dplyr     1.0.0      ✔ tibble    3.0.3 
-    ## ✔ ggplot2   3.3.2      ✔ tidyr     1.1.0 
-    ## ✔ infer     0.5.3      ✔ tune      0.1.1 
-    ## ✔ modeldata 0.0.2      ✔ workflows 0.1.2 
-    ## ✔ parsnip   0.1.2      ✔ yardstick 0.0.7 
-    ## ✔ purrr     0.3.4
+    ## Registered S3 method overwritten by 'xts':
+    ##   method     from
+    ##   as.zoo.xts zoo
+
+    ## ── Attaching packages ────────────────────────────────────── tidymodels 0.1.0 ──
+
+    ## ✔ broom     0.5.6      ✔ recipes   0.1.12
+    ## ✔ dials     0.0.6      ✔ rsample   0.0.6 
+    ## ✔ dplyr     1.0.7      ✔ tibble    3.0.1 
+    ## ✔ ggplot2   3.2.1      ✔ tune      0.1.0 
+    ## ✔ infer     0.5.1      ✔ workflows 0.1.1 
+    ## ✔ parsnip   0.1.1      ✔ yardstick 0.0.6 
+    ## ✔ purrr     0.3.3
 
     ## ── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
-    ## ✖ purrr::discard() masks scales::discard()
-    ## ✖ dplyr::filter()  masks stats::filter()
-    ## ✖ dplyr::lag()     masks stats::lag()
-    ## ✖ recipes::step()  masks stats::step()
+    ## ✖ purrr::%@%()         masks rlang::%@%()
+    ## ✖ purrr::as_function() masks rlang::as_function()
+    ## ✖ purrr::discard()     masks scales::discard()
+    ## ✖ dplyr::filter()      masks stats::filter()
+    ## ✖ purrr::flatten()     masks rlang::flatten()
+    ## ✖ purrr::flatten_chr() masks rlang::flatten_chr()
+    ## ✖ purrr::flatten_dbl() masks rlang::flatten_dbl()
+    ## ✖ purrr::flatten_int() masks rlang::flatten_int()
+    ## ✖ purrr::flatten_lgl() masks rlang::flatten_lgl()
+    ## ✖ purrr::flatten_raw() masks rlang::flatten_raw()
+    ## ✖ purrr::invoke()      masks rlang::invoke()
+    ## ✖ dplyr::lag()         masks stats::lag()
+    ## ✖ purrr::list_along()  masks rlang::list_along()
+    ## ✖ ggplot2::margin()    masks dials::margin()
+    ## ✖ purrr::modify()      masks rlang::modify()
+    ## ✖ purrr::prepend()     masks rlang::prepend()
+    ## ✖ purrr::splice()      masks rlang::splice()
+    ## ✖ recipes::step()      masks stats::step()
 
 ``` r
 library(tidyverse)
@@ -30,22 +53,43 @@ library(tidyverse)
 
     ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
 
+    ## ✔ tidyr   1.0.2     ✔ stringr 1.4.0
     ## ✔ readr   1.3.1     ✔ forcats 0.4.0
-    ## ✔ stringr 1.4.0
 
     ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-    ## ✖ readr::col_factor() masks scales::col_factor()
-    ## ✖ purrr::discard()    masks scales::discard()
-    ## ✖ dplyr::filter()     masks stats::filter()
-    ## ✖ stringr::fixed()    masks recipes::fixed()
-    ## ✖ dplyr::lag()        masks stats::lag()
-    ## ✖ readr::spec()       masks yardstick::spec()
+    ## ✖ purrr::%@%()         masks rlang::%@%()
+    ## ✖ purrr::as_function() masks rlang::as_function()
+    ## ✖ readr::col_factor()  masks scales::col_factor()
+    ## ✖ purrr::discard()     masks scales::discard()
+    ## ✖ dplyr::filter()      masks stats::filter()
+    ## ✖ stringr::fixed()     masks recipes::fixed()
+    ## ✖ purrr::flatten()     masks rlang::flatten()
+    ## ✖ purrr::flatten_chr() masks rlang::flatten_chr()
+    ## ✖ purrr::flatten_dbl() masks rlang::flatten_dbl()
+    ## ✖ purrr::flatten_int() masks rlang::flatten_int()
+    ## ✖ purrr::flatten_lgl() masks rlang::flatten_lgl()
+    ## ✖ purrr::flatten_raw() masks rlang::flatten_raw()
+    ## ✖ purrr::invoke()      masks rlang::invoke()
+    ## ✖ dplyr::lag()         masks stats::lag()
+    ## ✖ purrr::list_along()  masks rlang::list_along()
+    ## ✖ ggplot2::margin()    masks dials::margin()
+    ## ✖ purrr::modify()      masks rlang::modify()
+    ## ✖ purrr::prepend()     masks rlang::prepend()
+    ## ✖ readr::spec()        masks yardstick::spec()
+    ## ✖ purrr::splice()      masks rlang::splice()
 
 ``` r
 library(furrr)
 ```
 
     ## Loading required package: future
+
+    ## 
+    ## Attaching package: 'future'
+
+    ## The following object is masked from 'package:rmarkdown':
+    ## 
+    ##     run
 
 ``` r
 # Set number of workers.
@@ -98,7 +142,7 @@ in the data generating process.
 ``` r
 gen_book_of_life <- function(
   pop_size,
-  mu_T,
+  mu_L,
   mu_X,
   delta,
   mu_A,
@@ -116,39 +160,49 @@ gen_book_of_life <- function(
   ...
 ) {
   # Define the structural equations.
-  f_T <- identity
-  f_D <- identity
-  f_Z <- identity
-
-  f_A <- function(t, u_A){
-    val <- mu_A + t*gamma_
-    return(as.integer(u_A <= val))
+  f_S <- function(u_L) {
+    return(factor(if_else(u_L == 1, "b", "w"), levels = c("w", "b")))
   }
-  
-  f_X <- function(t, u_X){
-    val <- mu_X + t*delta
-    return(as.integer(u_X <= val))
+
+  f_D <- identity
+
+  f_A <- function(u_A, u_L) {
+    val <- mu_A + u_L * gamma_
+    return(u_A <= val)
+  }
+
+  f_X <- function(u_X, u_L){
+    val <- mu_X + u_L * delta
+    return(u_X <= val)
   }
   
   f_M <- function(d, a, u_M) {
-    val <- alpha_0 + a*alpha_A + d*alpha_black
-    return(as.integer(u_M <= val))
+    val <- alpha_0 + a * alpha_A + (d == "b") * alpha_black
+    return(u_M <= val)
   }
-  
-  f_R <- function(d, a, u_R) {
-    val <- lambda_0 + a*lambda_A + d*lambda_black
+
+  f_Z <- function(d, m) {
+    if_else(m, d, na_int)
+  }
+
+  f_R <- function(d, a, m, u_R) {
+    val <- if_else(
+      m,
+      lambda_0 + a * lambda_A + (d == "b") * lambda_black,
+      na_dbl
+    )
     return(u_R <= val)
   }
   
   f_Y <- function(z, m, r, x, u_Y) {
-    val <- beta_0 + x*beta_X + r*beta_R + z*beta_black
-    return(m * (u_Y <= val))
+    val <- beta_0 + x * beta_X + r * beta_R + (z == "b") * beta_black
+    return(replace_na(u_Y <= val, FALSE))
   }
   
   # Generate the book of life.
   book_of_life <- tibble(
       # Generate the exogenous variables.
-      U_T = rbinom(pop_size, 1, mu_T),
+      U_L = as.logical(rbinom(pop_size, 1, mu_L)),
       U_A = runif(pop_size),
       U_X = runif(pop_size),
       U_R = runif(pop_size),
@@ -156,20 +210,20 @@ gen_book_of_life <- function(
       U_Y = runif(pop_size),
       
       # Generate the endogenous variables.
-      TT = f_T(U_T),
-      D = f_D(TT),
-      Z = f_Z(D),
-      A = f_A(TT, U_A),
-      X = f_X(TT, U_X),
+      S = f_S(U_L),
+      D = f_D(S),
+      A = f_A(U_A, U_L),
+      X = f_X(U_X, U_L),
       M = f_M(D, A, U_M),
-      R = f_R(D, A, U_R),
+      Z = f_Z(D, M),
+      R = f_R(D, A, M, U_R),
       Y = f_Y(Z, M, R, X, U_Y),
 
       # Generate the potential outcomes.
-      M_w = f_M(0, A, U_M),
-      M_b = f_M(1, A, U_M),
-      Y_w_1 = f_Y(0, 1, R, X, U_Y),
-      Y_b_1 = f_Y(1, 1, R, X, U_Y)
+      M_w = f_M("w", A, U_M),
+      M_b = f_M("b", A, U_M),
+      Y_w_1 = f_Y("w", rep(TRUE, pop_size), R, X, U_Y),
+      Y_b_1 = f_Y("b", rep(TRUE, pop_size), R, X, U_Y)
   )
 }
 ```
@@ -177,21 +231,21 @@ gen_book_of_life <- function(
 Next, we define two convenience function which, given the book of life,
 produce the stratified difference-in-means and linear regression
 estimates, both when the covariate R is and is not observed. These
-functions also return the standard error, computed according to Eq. (8)
+functions also return the standard error, computed according to Eq. (9)
 in the case of the stratified difference-in-means estimator and
 according to the standard calculation for linear models.
 
 ``` r
 extract_sdm <- function(book_of_life) {
   confounded <- book_of_life %>%
-    filter(M == 1) %>%
+    filter(M) %>%
     group_by(Z, X) %>%
     summarize(c_zx = mean(Y), S_zx = n(), .groups = 'drop') %>%
     group_by(X) %>%
     summarize(
       n_x = sum(S_zx),
       se_x = sum(c_zx * (1 - c_zx) / S_zx),
-      diff_in_means = sum(Z * c_zx - (1 - Z) * c_zx),
+      diff_in_means = sum((Z == "b") * c_zx - (Z == "w") * c_zx),
       .groups='drop'
     ) %>%
     summarize(
@@ -200,14 +254,14 @@ extract_sdm <- function(book_of_life) {
     )
   
   unconfounded <- book_of_life %>%
-    filter(M == 1) %>%
+    filter(M) %>%
     group_by(Z, X, R) %>%
     summarize(c_zxr = mean(Y), S_zxr = n(), .groups='drop') %>%
     group_by(X, R) %>%
     summarize(
       n_xr = sum(S_zxr),
       se_xr = sum(c_zxr * (1 - c_zxr) / S_zxr),
-      diff_in_means = sum(Z * c_zxr - (1 - Z) * c_zxr),
+      diff_in_means = sum((Z == "b") * c_zxr - (Z == "w") * c_zxr),
       .groups='drop'
     ) %>%
     summarize(
@@ -221,17 +275,17 @@ extract_sdm <- function(book_of_life) {
 
 extract_lpm <- function(book_of_life) {
   confounded <- book_of_life %>%
-    filter(M == 1) %>%
+    filter(M) %>%
     lm(formula = Y ~ X + Z, data = .) %>%
     tidy() %>%
-    filter(term == "Z") %>%
+    filter(term == "Zb") %>%
     select(estimate = estimate, se = std.error)
   
   unconfounded <- book_of_life %>%
-    filter(M == 1) %>%
+    filter(M) %>%
     lm(formula = Y ~ X + R + Z, data = .) %>%
     tidy() %>%
-    filter(term == "Z") %>%
+    filter(term == "Zb") %>%
     select(estimate = estimate, se = std.error)
   
   rbind(confounded, unconfounded) %>%
@@ -250,7 +304,7 @@ We’ll generate estimates using the following grid of parameters.
 ``` r
 params <- expand_grid(
   pop_size = 1e5,
-  mu_T = 0.3,
+  mu_L = 0.3,
   mu_X = 0.3,
   delta = 0.1,
   mu_A = 0.3,
