@@ -222,8 +222,10 @@ gen_book_of_life <- function(
       # Generate the potential outcomes.
       M_w = f_M("w", A, U_M),
       M_b = f_M("b", A, U_M),
-      Y_w_1 = f_Y("w", rep(TRUE, pop_size), R, X, U_Y),
-      Y_b_1 = f_Y("b", rep(TRUE, pop_size), R, X, U_Y)
+      R_0 = f_R(D, A, rep(FALSE, pop_size), U_R),
+      R_1 = f_R(D, A, rep(TRUE, pop_size), U_R),
+      Y_w_1 = f_Y("w", rep(TRUE, pop_size), R_1, X, U_Y),
+      Y_b_1 = f_Y("b", rep(TRUE, pop_size), R_1, X, U_Y)
   )
 }
 ```
