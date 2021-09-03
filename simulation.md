@@ -8,11 +8,6 @@ library(rlang)
 library(tidymodels)
 ```
 
-    ## Registered S3 methods overwritten by 'tibble':
-    ##   method     from  
-    ##   format.tbl pillar
-    ##   print.tbl  pillar
-
     ## Registered S3 method overwritten by 'xts':
     ##   method     from
     ##   as.zoo.xts zoo
@@ -21,7 +16,7 @@ library(tidymodels)
 
     ## ✔ broom     0.5.6      ✔ recipes   0.1.12
     ## ✔ dials     0.0.6      ✔ rsample   0.0.6 
-    ## ✔ dplyr     1.0.7      ✔ tibble    3.0.1 
+    ## ✔ dplyr     1.0.7      ✔ tibble    3.1.4 
     ## ✔ ggplot2   3.2.1      ✔ tune      0.1.0 
     ## ✔ infer     0.5.1      ✔ workflows 0.1.1 
     ## ✔ parsnip   0.1.1      ✔ yardstick 0.0.6 
@@ -512,7 +507,7 @@ coverage <- millisim %>%
 coverage %>% print(n=Inf)
 ```
 
-    ## # A tibble: 50 x 5
+    ## # A tibble: 50 × 5
     ## # Groups:   confounded, alpha_black [10]
     ##    confounded   alpha_black beta_black sdm_coverage lpm_coverage
     ##    <chr>              <dbl>      <dbl>        <dbl>        <dbl>
